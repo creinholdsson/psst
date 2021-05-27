@@ -74,7 +74,15 @@ impl PlaybackController {
         });
 
         #[cfg(target_os = "windows")]
-        let mut media_controls = MediaControls::for_window(window.raw_window_handle()).unwrap();
+        let mut media_controls = {
+            use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+
+            let window_handle = match window.raw_window_handle() {
+                RawWindowHandle::Windows(h) => h,
+                _ => panic!("Cannot get window handle"),
+            };
+            MediaControls::for_window(window_handle).unwrap()
+        };
         #[cfg(not(target_os = "windows"))]
         let mut media_controls = MediaControls::new();
 
